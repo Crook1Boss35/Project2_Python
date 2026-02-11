@@ -1,0 +1,10 @@
+{
+  "tables": {
+    "users": [
+      {
+        "name": "bwuh",
+        "age": 1
+      }
+    ]
+  }
+}
