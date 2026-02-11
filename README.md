@@ -1,89 +1,62 @@
-## Управление таблицами
 
-База данных управляется через консольные команды.
 
-### Доступные команды
+Primitive DB
+Консольная база данных на Python с поддержкой управления таблицами, CRUD-операций, декораторов, кэширования и логирования времени выполнения.
+Проект хранит данные в JSON-файлах и использует декораторы и замыкания.
 
-- `create_table <имя_таблицы> <столбец:тип> ...` — создать таблицу  
-  Поддерживаемые типы: `int`, `str`, `bool`.  
-  Столбец `ID:int` добавляется автоматически.
+Установка
+poetry install
 
-- `list_tables` — показать список всех таблиц
+Запуск
+poetry run database
 
-- `drop_table <имя_таблицы>` — удалить таблицу
+Управление таблицами
+create_table <имя> <столбец:тип> ...
+list_tables
+drop_table <имя>
+info <имя>
+Поддерживаемые типы: int, str, bool
 
-- `help` — показать справку
+CRUD-операции
+insert into <таблица> values (...)
+select from <таблица>
+select from <таблица> where <поле> = <значение>
+update <таблица> set <поле> = <значение> where <поле> = <значение>
+delete from <таблица> where <поле> = <значение>
 
-- `exit` — выйти из программы
+Данные каждой таблицы хранятся в файле:
+data/<table_name>.json
 
-### Пример использования
+Декораторы:
 
-```text
->>> create_table users name:str age:int is_active:bool
-Таблица "users" успешно создана со столбцами: ID:int, name:str, age:int, is_active:bool
+handle_db_errors: обработка ошибок:
+KeyError, ValueError, FileNotFoundError
 
->>> list_tables
-- users
+confirm_action(action_name) применён к:
+drop_table
+delete
 
->>> drop_table users
-Таблица "users" успешно удалена.```
+log_time: замеряет время выполнения функции. Применён к:
+insert
+select
+
+create_cacher(): создаёт замыкание для кэширования результатов.
+Используется для кэширования одинаковых запросов select.
+
+Кэш автоматически очищается после:
+insert, update, delete, drop_table
+
+Прмиер работы:
+create_table users name:str age:int is_active:bool
+insert into users values ("Sergei", 28, true)
+select from users
+update users set age = 29 where name = "Sergei"
+delete from users where ID = 1
+info users
 
 ## Demo
-
 [![asciinema demo](https://asciinema.org/a/pgzktxpPgOP5fufv.svg)](https://asciinema.org/a/pgzktxpPgOP5fufv)
-
-CRUD-операции (Part2)
-
-На этом этапе реализованы операции Create, Read, Update, Delete для работы с данными внутри таблиц.
-
-Данные каждой таблицы хранятся в отдельном JSON-файле в директории data/.
-
-Доступные команды
-
-insert into <имя_таблицы> values (<значение1>, <значение2>, ...)
-Добавить запись (ID генерируется автоматически).
-
-select from <имя_таблицы>
-Вывести все записи таблицы.
-
-select from <имя_таблицы> where <столбец> = <значение>
-Вывести записи по условию.
-
-update <имя_таблицы> set <столбец> = <новое_значение> where <столбец> = <значение>
-Обновить записи по условию.
-
-delete from <имя_таблицы> where <столбец> = <значение>
-Удалить записи по условию.
-
-info <имя_таблицы>
-Показать информацию о таблице (схема + количество записей).
-
-help — справка
-
-exit — выход
-
->>> create_table users name:str age:int is_active:bool
-
->>> insert into users values ("Sergei", 28, true)
-Запись с ID=1 успешно добавлена в таблицу "users".
-
->>> select from users
-+----+--------+-----+-----------+
-| ID |  name  | age | is_active |
-+----+--------+-----+-----------+
-| 1  | Sergei |  28 |    True   |
-+----+--------+-----+-----------+
-
->>> update users set age = 29 where name = "Sergei"
-Записи успешно обновлены.
-
->>> delete from users where ID = 1
-Запись с ID=1 успешно удалена.
-
->>> info users
-Таблица: users
-Столбцы: ID:int, name:str, age:int, is_active:bool
-Количество записей: 0
-
 ## Demo2 CRUD
 [![asciinema demo](https://asciinema.org/a/HPVOygMveoUGz93O.svg)](https://asciinema.org/a/HPVOygMveoUGz93O)
+## Demo3 Decoratory
+[![asciinema demo](https://asciinema.org/a/EKcqiwPOw1rhta17.svg)](https://asciinema.org/a/EKcqiwPOw1rhta17)

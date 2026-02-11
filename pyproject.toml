@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "project2-kovalchuk-m25-555"
 version = "0.1.0"
-description = ""
+description = "Primitive DB: база данных с CRUD и хранением JSON"
 authors = ["Crook1Boss35 <cockandballtorture0911@gmail.com>"]
 readme = "README.md"
 packages = [

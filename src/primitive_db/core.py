@@ -1,7 +1,10 @@
+from src.primitive_db.decorators import confirm_action, handle_db_errors, log_time
+
 SUPPORTED_TYPES = {"int", "str", "bool"}
 
-
+@handle_db_errors
 def create_table(metadata: dict, table_name: str, columns: list[str]) -> dict:
+    """Создаёт новую таблицу."""
     if table_name in metadata:
         print(f'Ошибка: Таблица "{table_name}" уже существует.')
         return metadata
@@ -27,8 +30,10 @@ def create_table(metadata: dict, table_name: str, columns: list[str]) -> dict:
     print(f'Таблица "{table_name}" успешно создана со столбцами: {cols_str}')
     return metadata
 
-
+@confirm_action("удаление таблицы")
+@handle_db_errors
 def drop_table(metadata: dict, table_name: str) -> dict:
+    """Удаляет таблицу и её данные."""
     if table_name not in metadata:
         print(f'Ошибка: Таблица "{table_name}" не существует.')
         return metadata
@@ -37,7 +42,10 @@ def drop_table(metadata: dict, table_name: str) -> dict:
     print(f'Таблица "{table_name}" успешно удалена.')
     return metadata
 
+@log_time
+@handle_db_errors
 def insert(metadata: dict, table_name: str, values: list, table_data: list) -> list:
+    """Добавляет новую запись в таблицу."""
     if table_name not in metadata:
         print(f'Ошибка: Таблица "{table_name}" не существует.')
         return table_data
@@ -81,7 +89,10 @@ def insert(metadata: dict, table_name: str, values: list, table_data: list) -> l
 
     return table_data
 
+@log_time
+@handle_db_errors
 def select(table_data: list, where_clause: dict | None = None) -> list:
+    """Возвращает записи из таблицы с фильтрацией или без неё."""
     if where_clause is None:
         return table_data
 
@@ -97,7 +108,9 @@ def select(table_data: list, where_clause: dict | None = None) -> list:
 
     return result
 
+@handle_db_errors
 def update(table_data: list, set_clause: dict, where_clause: dict) -> list:
+    """Обновляет записи, удовлетворяющие условию."""
     if len(where_clause) != 1:
         return table_data
     if len(set_clause) != 1:
@@ -125,7 +138,10 @@ def update(table_data: list, set_clause: dict, where_clause: dict) -> list:
 
     return table_data
 
+@confirm_action("удаление записи")
+@handle_db_errors
 def delete(table_data: list, where_clause: dict) -> list:
+    """Удаляет записи по условию."""
     if len(where_clause) != 1:
         return table_data
 
@@ -151,7 +167,9 @@ def delete(table_data: list, where_clause: dict) -> list:
 
     return new_data
 
+@handle_db_errors
 def info(metadata: dict, table_name: str, table_data: list) -> None:
+    """Возвращает информацию о таблице."""
     if table_name not in metadata:
         print(f'Ошибка: Таблица "{table_name}" не существует.')
         return

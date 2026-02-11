@@ -11,6 +11,7 @@ from src.primitive_db.core import (
     select,
     update,
 )
+from src.primitive_db.decorators import create_cacher
 from src.primitive_db.parser import parse_set, parse_values, parse_where
 from src.primitive_db.utils import (
     load_metadata,
@@ -48,8 +49,11 @@ def print_help() -> None:
 
 
 def run() -> None:
+    """Запускает основной цикл взаимодействия."""
     print("\n***База данных***")
     print_help()
+
+    cache_result = create_cacher()
 
     while True:
         metadata = load_metadata(META_FILE)
@@ -97,6 +101,7 @@ def run() -> None:
             new_metadata = drop_table(metadata, table_name)
 
             save_metadata(META_FILE, new_metadata)
+            cache_result.clear()
             continue
 
         if command == "insert":
@@ -121,6 +126,7 @@ def run() -> None:
             table_data = load_table_data(table_name)
             new_data = insert(metadata, table_name, values, table_data)
             save_table_data(table_name, new_data)
+            cache_result.clear()
             continue
 
         if command == "select":
@@ -131,6 +137,8 @@ def run() -> None:
             table_name = args[2]
 
             table_data = load_table_data(table_name)
+
+            result = []
 
             where_clause = None
 
@@ -146,13 +154,17 @@ def run() -> None:
                     print(e)
                     continue
 
-            result = select(table_data, where_clause)
+                key = (table_name, str(where_clause))
+                result = cache_result(key, lambda: select(table_data, where_clause))
 
-            if not result:
-                continue
+
+                if not result:
+                    print("Нет записей.")
+                    continue
 
             columns = metadata.get(table_name)
             if not columns:
+                print(f'Ошибка: Таблица "{table_name}" не существует.')
                 continue
 
             table = PrettyTable()
@@ -194,6 +206,7 @@ def run() -> None:
             table_data = load_table_data(table_name)
             new_data = update(table_data, set_clause, where_clause)
             save_table_data(table_name, new_data)
+            cache_result.clear()
             continue
 
         if command == "delete":
@@ -218,6 +231,7 @@ def run() -> None:
             table_data = load_table_data(table_name)
             new_data = delete(table_data, where_clause)
             save_table_data(table_name, new_data)
+            cache_result.clear()
             continue
 
         if command == "info":

@@ -1,6 +1,7 @@
 import ast
 import re
 
+"""Разбирают str/ values/ where/ set в список/ словарь."""
 
 def parse_literal(raw: str):
     s = raw.strip()
