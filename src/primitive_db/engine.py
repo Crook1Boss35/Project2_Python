@@ -142,6 +142,9 @@ def run() -> None:
 
             where_clause = None
 
+            if len(args) == 3:
+                result = select(table_data)
+
             if len(args) > 3:
                 if len(args) < 6 or args[3] != "where":
                     print(f"Функции {command} нет. Попробуйте снова.")
